@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | MyBlog</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="logo" href="index.html">MyBlog.</a>
+
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="create-blog.html">Create Blog</a>
+        <a href="login.html">Logout</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="auth-container">
+    <section class="auth-card dashboard-card">
+      <p class="eyebrow">YOUR SPACE</p>
+      <h1>My Dashboard</h1>
+
+      <p class="auth-description">
+        Welcome to your dashboard. Manage your stories
+        and share new ideas.
+      </p>
+
+      <div class="dashboard-heading">
+        <h2>My Articles</h2>
+        <a class="primary-button" href="create-blog.html">
+          + Create Blog
+        </a>
+      </div>
+
+      <div id="articlesContainer" aria-live="polite">
+        <p>You haven't published any articles yet.</p>
+      </div>
+
+      <p class="dashboard-note">
+        Your articles are stored in this browser.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 MyBlog. All rights reserved.</p>
+  </footer>
+</body>
+</html>

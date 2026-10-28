@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | MyBlog</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <a class="logo" href="index.html">MyBlog.</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="login.html">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="auth-container">
+    <section class="auth-card">
+      <p class="eyebrow">JOIN MYBLOG</p>
+      <h1>Create an account</h1>
+      <p class="auth-description">
+        Join our community and start sharing your ideas.
+      </p>
+
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="name">Full name</label>
+          <input type="text" id="name" name="name"
+                 placeholder="Your full name"
+                 autocomplete="name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="registerEmail">Email address</label>
+          <input type="email" id="registerEmail" name="email"
+                 placeholder="you@example.com"
+                 autocomplete="email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <input type="password" id="registerPassword"
+                 name="password" placeholder="Create a password"
+                 autocomplete="new-password" minlength="6" required>
+        </div>
+
+        <button class="primary-button auth-submit" type="submit">
+          Create Account
+        </button>
+
+        <p id="registerMessage" role="status" aria-live="polite"></p>
+      </form>
+
+      <p class="auth-switch">
+        Already have an account?
+        <a href="login.html">Login</a>
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 MyBlog. All rights reserved.</p>
+  </footer>
+</body>
+</html>
