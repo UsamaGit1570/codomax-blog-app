@@ -3,20 +3,22 @@
 
 console.log("MyBlog frontend loaded successfully.");
 
+const API_URL = "http://localhost:3000";
+
 // Explore Articles button
 const exploreLink = document.querySelector(".primary-button");
 
-if (exploreLink) {
+if (exploreLink && !exploreLink.closest("form")) {
   exploreLink.addEventListener("click", function () {
     console.log("User clicked Explore Articles");
   });
 }
 
-// Login form validation
+// Login form
 const loginForm = document.querySelector("#loginForm");
 
 if (loginForm) {
-  loginForm.addEventListener("submit", function (event) {
+  loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const email = document.querySelector("#email").value.trim();
@@ -28,17 +30,36 @@ if (loginForm) {
       return;
     }
 
-    message.textContent =
-      "Form validation successful. Backend authentication is not connected yet.";
+    message.textContent = "Logging in...";
+
+    try {
+      const response = await fetch(`${API_URL}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.message || "Login failed.";
+        return;
+      }
+
+      localStorage.setItem("loggedInUser", JSON.stringify(data.user));
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      message.textContent = "Cannot connect to backend.";
+      console.error(error);
+    }
   });
 }
 
-
-
+// Registration form
 const registerForm = document.querySelector("#registerForm");
 
 if (registerForm) {
-  registerForm.addEventListener("submit", function (event) {
+  registerForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const name = document.querySelector("#name").value.trim();
@@ -56,16 +77,36 @@ if (registerForm) {
       return;
     }
 
-    message.textContent =
-      "Form validation successful. Backend registration is not connected yet.";
+    message.textContent = "Creating account...";
+
+    try {
+      const response = await fetch(`${API_URL}/api/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        message.textContent = data.message || "Registration failed.";
+        return;
+      }
+
+      message.textContent = "Registration successful! You can now log in.";
+      registerForm.reset();
+    } catch (error) {
+      message.textContent = "Cannot connect to backend.";
+      console.error(error);
+    }
   });
 }
 
-
+// Create Blog form — backend API
 const createBlogForm = document.querySelector("#createBlogForm");
 
 if (createBlogForm) {
-  createBlogForm.addEventListener("submit", function (event) {
+  createBlogForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const title = document.querySelector("#blogTitle").value.trim();
@@ -78,102 +119,102 @@ if (createBlogForm) {
       return;
     }
 
-    const blog = {
-      id: Date.now(),
-      title: title,
-      category: category,
-      content: content,
-      createdAt: new Date().toLocaleDateString()
-    };
+    message.textContent = "Publishing blog...";
 
-    const blogs = JSON.parse(localStorage.getItem("myBlogs")) || [];
+    try {
+      const response = await fetch(`${API_URL}/api/blogs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, category, content })
+      });
 
-    blogs.push(blog);
+      const data = await response.json();
 
-    localStorage.setItem("myBlogs", JSON.stringify(blogs));
+      if (!response.ok) {
+        message.textContent = data.message || "Could not create blog.";
+        return;
+      }
 
-    message.textContent = "Blog saved successfully!";
-
-    createBlogForm.reset();
+      message.textContent = "Blog published successfully!";
+      createBlogForm.reset();
+    } catch (error) {
+      message.textContent = "Cannot connect to backend.";
+      console.error(error);
+    }
   });
 }
 
-
+// Articles — load blogs from backend
 const articlesContainer = document.querySelector("#articlesContainer");
 
 if (articlesContainer) {
-  const blogs = JSON.parse(localStorage.getItem("myBlogs")) || [];
+  async function renderBlogs() {
+    articlesContainer.textContent = "Loading articles...";
 
-  if (blogs.length === 0) {
-    articlesContainer.textContent = "You haven't published any articles yet.";
-  } else {
-    articlesContainer.replaceChildren();
+    try {
+      const response = await fetch(`${API_URL}/api/blogs`);
+      const data = await response.json();
 
-    blogs.forEach(function (blog) {
-      const article = document.createElement("article");
-      const title = document.createElement("h3");
-      const category = document.createElement("p");
-      const content = document.createElement("p");
-      const date = document.createElement("small");
+      if (!response.ok) {
+        throw new Error(data.message || "Could not load articles.");
+      }
 
-      title.textContent = blog.title;
-      category.textContent = "Category: " + blog.category;
-      content.textContent = blog.content;
-      date.textContent = "Published: " + blog.createdAt;
+      articlesContainer.replaceChildren();
 
-      article.append(title, category, content, date);
-      articlesContainer.appendChild(article);
-    });
-  }
-}
+      const blogs = data.blogs || [];
 
+      if (blogs.length === 0) {
+        articlesContainer.textContent =
+          "You haven't published any articles yet.";
+        return;
+      }
 
-const articlesContainer = document.querySelector("#articlesContainer");
+      blogs.forEach(function (blog) {
+        const article = document.createElement("article");
+        const title = document.createElement("h3");
+        const category = document.createElement("p");
+        const content = document.createElement("p");
+        const date = document.createElement("small");
+        const deleteButton = document.createElement("button");
 
-if (articlesContainer) {
-  const blogs = JSON.parse(localStorage.getItem("myBlogs")) || [];
+        title.textContent = blog.title;
+        category.textContent = "Category: " + blog.category;
+        content.textContent = blog.content;
+        date.textContent = "Published: " + blog.createdAt;
 
-  function renderBlogs() {
-    articlesContainer.replaceChildren();
+        deleteButton.textContent = "Delete Blog";
+        deleteButton.type = "button";
 
-    const savedBlogs = JSON.parse(localStorage.getItem("myBlogs")) || [];
+        deleteButton.addEventListener("click", async function () {
+          deleteButton.disabled = true;
 
-    if (savedBlogs.length === 0) {
-      articlesContainer.textContent =
-        "You haven't published any articles yet.";
-      return;
-    }
+          try {
+            const deleteResponse = await fetch(
+              `${API_URL}/api/blogs/${blog.id}`,
+              { method: "DELETE" }
+            );
 
-    savedBlogs.forEach(function (blog) {
-      const article = document.createElement("article");
-      const title = document.createElement("h3");
-      const category = document.createElement("p");
-      const content = document.createElement("p");
-      const date = document.createElement("small");
-      const deleteButton = document.createElement("button");
+            const deleteData = await deleteResponse.json();
 
-      title.textContent = blog.title;
-      category.textContent = "Category: " + blog.category;
-      content.textContent = blog.content;
-      date.textContent = "Published: " + blog.createdAt;
+            if (!deleteResponse.ok) {
+              throw new Error(deleteData.message || "Delete failed.");
+            }
 
-      deleteButton.textContent = "Delete Blog";
-      deleteButton.type = "button";
-
-      deleteButton.addEventListener("click", function () {
-        const updatedBlogs = (
-          JSON.parse(localStorage.getItem("myBlogs")) || []
-        ).filter(function (item) {
-          return item.id !== blog.id;
+            await renderBlogs();
+          } catch (error) {
+            alert(error.message || "Could not delete blog.");
+            deleteButton.disabled = false;
+          }
         });
 
-        localStorage.setItem("myBlogs", JSON.stringify(updatedBlogs));
-        renderBlogs();
+        article.append(title, category, content, date, deleteButton);
+        articlesContainer.appendChild(article);
       });
-
-      article.append(title, category, content, date, deleteButton);
-      articlesContainer.appendChild(article);
-    });
+    } catch (error) {
+      articlesContainer.textContent =
+        "Could not load articles. Check that the backend is running.";
+      console.error(error);
+    }
   }
 
   renderBlogs();
